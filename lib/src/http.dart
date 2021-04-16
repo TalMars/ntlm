@@ -90,6 +90,10 @@ class NTLMClient extends BaseClient {
   /// previous responses.
   @override
   Future<StreamedResponse> send(BaseRequest originalReq) async {
+    return request(originalReq);
+  }
+
+  Future<StreamedResponse> request(BaseRequest originalReq, {isRepeat = false}) async {
     // We need to be able to send a copy of the request with the Type 3 message
     // header attached. Since request bodies can only be streamed once, read the
     // entire body now so we can create request copies later on.
@@ -147,8 +151,13 @@ class NTLMClient extends BaseClient {
     req3.headers[_authorizationHeader] = msg3;
     final res3 = await _inner.send(req3);
 
+    if (res3.statusCode == 401 && !isRepeat) {
+      return request(originalReq, isRepeat: true);
+    }
+
     return res3;
   }
+
 
   @Deprecated('Use the `NTLMClient.send` method instead')
   Future<StreamedResponse> multipart(MultipartRequest request) => send(request);
