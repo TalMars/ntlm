@@ -152,11 +152,41 @@ class NTLMClient extends BaseClient {
     final res3 = await _inner.send(req3);
 
     if (res3.statusCode == 401 && !isRepeat) {
-      return request(originalReq, isRepeat: true);
+      var copyRequest = _copyRequest(originalReq, body);
+      return request(copyRequest, isRepeat: true);
     }
 
     return res3;
   }
+
+  // BaseRequest _copyRequest(BaseRequest request) {
+  //   BaseRequest requestCopy;
+  //
+  //   if(request is Request) {
+  //     requestCopy = Request(request.method, request.url)
+  //       ..encoding = request.encoding
+  //       ..bodyBytes = request.bodyBytes;
+  //   }
+  //   else if(request is MultipartRequest) {
+  //     requestCopy = MultipartRequest(request.method, request.url)
+  //       ..fields.addAll(request.fields)
+  //       ..files.addAll(request.files);
+  //   }
+  //   else if(request is StreamedRequest) {
+  //     throw Exception('copying streamed requests is not supported');
+  //   }
+  //   else {
+  //     throw Exception('request type is unknown, cannot copy');
+  //   }
+  //
+  //   requestCopy
+  //     ..persistentConnection = request.persistentConnection
+  //     ..followRedirects = request.followRedirects
+  //     ..maxRedirects = request.maxRedirects
+  //     ..headers.addAll(request.headers);
+  //
+  //   return requestCopy;
+  // }
 
 
   @Deprecated('Use the `NTLMClient.send` method instead')
